@@ -6,14 +6,15 @@ from utils import printProgressBar
 users_file = open("./partial/users.txt", 'r')
 defaults = json.load(open("./partial/defaults.json", 'r'))
 
-def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=100):
+def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=5000):
 
 	logging.info("Retrieving edge list...")
 
 	sub_edges = {}
+	edge_counter = 0
 
-	count = 0
-	for line in users_file:
+	for idx, line in enumerate(users_file):
+
 		user = line.strip().split("\t")[0]
 		if len(line.strip().split("\t"))==1: continue
 		sublist = line.strip().split("\t")[1].split(" ")
@@ -33,14 +34,16 @@ def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=10
 			for sub2 in sublist:
 				sub2 = sub2.split("::")[0]
 				if sub!=sub2: sub_edges[sub][sub2] += 1
+				edge_counter += 1
 
-		count += 1
-		printProgressBar(count, lines_read_threshold, prefix = 'Progress:', suffix = 'Complete', length = 50)
-		if count==lines_read_threshold: break
-
+		printProgressBar(idx, lines_read_threshold, prefix = 'Progress:', suffix = 'Complete', length = 50)
 		
-	logging.info("Found " + str(len(sub_edges)) + " nodes")
+		if idx >= lines_read_threshold: break
+
+	print ""	
+	logging.info("Found " + str(len(sub_edges)) + " nodes and " + str(edge_counter) + " edges")
 	
+	# TODO: better manage saving partial files
 	if overwrite: 
 		json.dump(sub_edges, open("./partial/edges.json", 'w+'))
 	
@@ -49,14 +52,15 @@ def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=10
 
 def trim_nodes_edges(sub_edges, overwrite=False):
 
-	edge_weight_threshold = 100
+	edge_weight_threshold = 10
 	node_degree_threshold = 1
 
 	new_sub_edges = {}
+	edge_counter = 0
 
-	print "trimming " + str(len(sub_edges)) + " nodes..."
+	logging.info("trimming " + str(len(sub_edges)) + " nodes...")
 
-	for sub in sub_edges:
+	for idx, sub in enumerate(sub_edges):
 		if sub in defaults: continue
 
 		this_sub_edge_dict = defaultdict(int)
@@ -67,15 +71,20 @@ def trim_nodes_edges(sub_edges, overwrite=False):
 
 			if sub_edges[sub][sub2] > edge_weight_threshold:
 				this_sub_edge_dict[sub2] = sub_edges[sub][sub2]
+				edge_counter += 1
 
 		if len(this_sub_edge_dict) > node_degree_threshold:
 			new_sub_edges[sub] = this_sub_edge_dict
 
-	print "reduced to " + str(len(new_sub_edges)) + " nodes."
+		printProgressBar(idx, len(sub_edges), prefix = 'Progress:', suffix = 'Complete', length = 50)
+
+	print ""
+	logging.info("reduced to " + str(len(new_sub_edges)) + " nodes.")
 
 	if overwrite:
 		json.dump(new_sub_edges, open("./partial/edges_trimmed.json", 'w+'))
 	
+
 	return new_sub_edges
 
 """
