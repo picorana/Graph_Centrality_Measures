@@ -3,10 +3,10 @@ import logging
 from collections import defaultdict
 from utils import printProgressBar
 
-users_file = open("./partial/users.txt", 'r')
+users_file = open("./partial/users.txt", 'r') # 49172 lines
 defaults = json.load(open("./partial/defaults.json", 'r'))
 
-def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=5000):
+def find_edges(subs_per_user_threshold=5, overwrite=False, lines_read_threshold=50000):
 
 	logging.info("Retrieving edge list...")
 
@@ -14,6 +14,8 @@ def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=50
 	edge_counter = 0
 
 	for idx, line in enumerate(users_file):
+
+		if idx<25000: continue
 
 		user = line.strip().split("\t")[0]
 		if len(line.strip().split("\t"))==1: continue
@@ -36,7 +38,7 @@ def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=50
 				if sub!=sub2: sub_edges[sub][sub2] += 1
 				edge_counter += 1
 
-		printProgressBar(idx, lines_read_threshold, prefix = 'Progress:', suffix = 'Complete', length = 50)
+		printProgressBar(idx, 49172, prefix = 'Progress:', suffix = 'Complete', length = 50)
 		
 		if idx >= lines_read_threshold: break
 
@@ -49,6 +51,31 @@ def find_edges(subs_per_user_threshold, overwrite=False, lines_read_threshold=50
 	
 	return sub_edges
 
+def compute_sub_sizes(subs_per_user_threshold=5):
+	
+	sub_sizes = defaultdict(int)
+
+	print 'helloo' 
+
+	for idx, line in enumerate(users_file):
+
+		print idx
+
+		user = line.strip().split("\t")[0]
+		if len(line.strip().split("\t"))==1: continue
+		sublist = line.strip().split("\t")[1].split(" ")
+
+		# the user posted in too few subs
+		if len(sublist) < subs_per_user_threshold: continue
+
+		# the user posted in too many subs
+		if len(sublist) > 400: continue
+
+		for sub in sublist:
+			sub = sub.split("::")[0]
+			sub_sizes[sub] += 1
+
+	return sub_sizes
 
 def trim_nodes_edges(sub_edges, overwrite=False):
 

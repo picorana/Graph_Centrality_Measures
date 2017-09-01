@@ -61,6 +61,7 @@ def main():
 	sub_edges = document_fix.find_edges(subs_per_user_threshold)
 	sub_edges = document_fix.trim_nodes_edges(sub_edges)
 	G = make_graph(sub_edges)
+	nx.write_edgelist(G, open('edgelist_full2.txt', 'w+'))
 	#adj_matrix = adjacency_matrix(G)
 	eigenvector_centrality = nx.eigenvector_centrality(G)
 
