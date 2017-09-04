@@ -16,7 +16,7 @@ def loadLayout():
         hovermode='closest',
         margin=dict(b=20,l=5,r=5,t=40),
         annotations=[ dict(
-            text="Python code: <a href='https://plot.ly/ipython-notebooks/network-graphs/'> https://plot.ly/ipython-notebooks/network-graphs/</a>",
+            text="Link to the code on Github: <a href='https://github.com/picorana/Graph_Centrality_Measures'> https://github.com/picorana/Graph_Centrality_Measures</a>",
             showarrow=False,
             xref="paper", yref="paper",
             x=0.005, y=-0.002 ) ],
@@ -62,7 +62,7 @@ def trim_graph_edges_for_visualization(G):
 
     for node in G.nodes():
         for edge in G.edges(node):
-            if G[edge[0]][edge[1]]['weight'] < 0.45:
+            if G[edge[0]][edge[1]]['weight'] < 0.045:
                 G.remove_edge(edge[0], edge[1])
 
     solitary= [n for n,d in G.degree_iter() if d==0]
@@ -70,17 +70,17 @@ def trim_graph_edges_for_visualization(G):
 
     return G
 
-def drawSpringLayoutGraphFromDict(G, node_sizes):
+def drawSpringLayoutGraphFromDict(G, node_sizes, coefficient=0.3):
 
     import networkx as nx
     from plotly.offline import iplot, init_notebook_mode
-    from plotly.graph_objs import Figure, Data, XAxis, YAxis
+    from plotly.graph_objs import Figure, XAxis, YAxis, Data
 
     init_notebook_mode(connected=True)
     
     edge_trace, node_trace = init_edge_node_trace()
     
-    pos = nx.spring_layout(G)
+    pos = nx.spring_layout(G, k=coefficient)
     
     for edge in G.edges():
         x0, y0 = pos[edge[0]]
