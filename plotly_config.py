@@ -138,7 +138,7 @@ def drawSpringLayoutGraph(test_G):
 
     for node, adjacencies in enumerate(test_G.adjacency_list()):
         node_trace['marker']['color'].append(len(adjacencies))
-        node_info = '# AAA: '+str(len(adjacencies)) + '\n node number: ' + str(node)
+        node_info = '# degree: '+str(len(adjacencies)) + '\n node number: ' + str(node)
         node_trace['text'].append(node_info)
 
     fig = Figure(data = Data([edge_trace, node_trace]), layout = loadLayout())

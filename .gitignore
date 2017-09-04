@@ -1,4 +1,5 @@
 partial/
 data/
+.ipynb_checkpoints/
 *.pyc
 facebook.py
